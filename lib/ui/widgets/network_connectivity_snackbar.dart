@@ -1,46 +1,64 @@
 // network_connectivity_snackbar.dart
-import 'package:flutter/material.dart';
-import 'package:pack/pack.dart';
+import 'dart:async';
 
-import '../../services/connectivity_service/connectivity_service.dart';
-import '../../services/snack_bar_service/notify_service.dart';
+import 'package:flutter/material.dart';
+import 'package:ztpack/pack.dart';
+import 'package:ztpack/services/snack_bar_service/notify_service.dart';
+
+import '../../core/network/connectivity_service.dart';
 
 
 class NetworkConnectivitySnackBar extends StatefulWidget {
   final Widget child;
   final ConnectivityService connectivityService;
-  const NetworkConnectivitySnackBar({super.key, required this.child, required this.connectivityService});
+  final String offlineMessage;
+  final String onlineMessage;
+  final Duration offlineDuration;
+  final Duration onlineDuration;
+  final Color? offlineColor;
+  final Color? onlineColor;
+
+  const NetworkConnectivitySnackBar({
+    super.key,
+    required this.child,
+    required this.connectivityService,
+    this.offlineMessage = 'No Internet Connection',
+    this.onlineMessage = 'Internet Connection Restored',
+    this.offlineDuration = const Duration(minutes: 60),
+    this.onlineDuration = const Duration(seconds: 2),
+    this.offlineColor,
+    this.onlineColor,
+  });
 
   @override
-  State<NetworkConnectivitySnackBar> createState() =>
-      _NetworkConnectivitySnackBarState();
+  State<NetworkConnectivitySnackBar> createState() => _NetworkConnectivitySnackBarState();
 }
 
-class _NetworkConnectivitySnackBarState
-    extends State<NetworkConnectivitySnackBar> {
+class _NetworkConnectivitySnackBarState extends State<NetworkConnectivitySnackBar> {
   late ConnectivityService _connectivityService;
-  bool _isOnline = true; // Track current state
+  bool _isOnline = true;
   bool _snackbarShown = false;
+  late final Stream<ConnectivityStatus> _statusStream;
+  late final StreamSubscription<ConnectivityStatus> _subscription;
 
   @override
   void initState() {
     super.initState();
     _connectivityService = widget.connectivityService;
-
-    // Set initial state
     _isOnline = _connectivityService.isConnected;
-    WidgetsBinding.instance.addPostFrameCallback((_)=>_checkConnectivity());
+    _statusStream = _connectivityService.onStatusChanged;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkConnectivity());
+    _subscription = _statusStream.listen(_onStatusChanged);
+  }
 
-    // Listen to actual network changes instead of periodic polling
-    _connectivityService.onConnectivityChanged.listen((_) {
-      _checkConnectivity();
-    });
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   Future<void> _checkConnectivity() async {
-    // Use hasActiveInternet to check for actual internet access
     final hasInternet = await _connectivityService.hasActiveInternet();
-
     if (mounted) {
       setState(() {
         if (_isOnline != hasInternet) {
@@ -51,31 +69,33 @@ class _NetworkConnectivitySnackBarState
     }
   }
 
-  void _showConnectivitySnackBar(BuildContext context, bool isOnline) {
-    // Always clear previous snackbars first
-    ScaffoldMessenger.of(context).clearSnackBars();
+  void _onStatusChanged(ConnectivityStatus status) {
+    final isOnline = status == ConnectivityStatus.online;
+    if (_isOnline != isOnline) {
+      setState(() {
+        _isOnline = isOnline;
+        _showConnectivitySnackBar(context, _isOnline);
+      });
+    }
+  }
 
-    // Only show the snackbar if we need to
+  void _showConnectivitySnackBar(BuildContext context, bool isOnline) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     if (_snackbarShown && isOnline) {
-      // We were showing the offline snackbar and now we're online
       _snackbarShown = false;
       NotifyService.googleFilesStyle(
         context: context,
-        message: 'Internet Connection Restored',
-
-        color: context.colorScheme.primary,
+        message: widget.onlineMessage,
+        duration: widget.onlineDuration,
+        color: widget.onlineColor ?? Theme.of(context).colorScheme.primary,
       );
     } else if (!isOnline) {
-      // We're offline, show the offline snackbar
       _snackbarShown = true;
       NotifyService.googleFilesStyle(
         context: context,
-        message: 'No Internet Connection',
-        duration: Duration(minutes: 60),
-        color: context.colorScheme.error
-
-        // type: NotificationType.warning,
-        // showIcon: false,
+        message: widget.offlineMessage,
+        duration: widget.offlineDuration,
+        color: widget.offlineColor ?? Theme.of(context).colorScheme.error,
       );
     }
   }
