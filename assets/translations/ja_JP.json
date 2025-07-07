@@ -1,0 +1,12 @@
+{
+  "app_title": "多言語アプリ",
+  "welcome_message": "多言語アプリケーションへようこそ！",
+  "language_selection": "このアプリは複数の言語をサポートしています",
+  "change_language": "言語を変更",
+  "select_language": "言語を選択",
+  "item_count": {
+    "zero": "アイテムなし",
+    "one": "1アイテム",
+    "other": "{count}アイテム"
+  }
+}

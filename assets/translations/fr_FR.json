@@ -1,0 +1,12 @@
+{
+  "app_title": "Application Multilingue",
+  "welcome_message": "Bienvenue dans notre application multilingue !",
+  "language_selection": "Cette application prend en charge plusieurs langues",
+  "change_language": "Changer de Langue",
+  "select_language": "Sélectionner la Langue",
+  "item_count": {
+    "zero": "Aucun élément",
+    "one": "1 élément",
+    "other": "{count} éléments"
+  }
+}

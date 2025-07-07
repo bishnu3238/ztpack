@@ -1,0 +1,12 @@
+{
+  "app_title": "बहुभाषी एप्लिकेशन",
+  "welcome_message": "हमारे बहुभाषी एप्लिकेशन में आपका स्वागत है!",
+  "language_selection": "यह ऐप कई भाषाओं का समर्थन करता है",
+  "change_language": "भाषा बदलें",
+  "select_language": "भाषा चुनें",
+  "item_count": {
+    "zero": "कोई आइटम नहीं",
+    "one": "1 आइटम",
+    "other": "{count} आइटम"
+  }
+}

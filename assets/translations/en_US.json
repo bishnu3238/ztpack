@@ -1,0 +1,12 @@
+{
+  "app_title": "Multi-Language App",
+  "welcome_message": "Welcome to our multi-language application!",
+  "language_selection": "This app supports multiple languages",
+  "change_language": "Change Language",
+  "select_language": "Select Language",
+  "item_count": {
+    "zero": "No items",
+    "one": "1 item",
+    "other": "{count} items"
+  }
+}
