@@ -1,9 +1,7 @@
-// connectivity_service.dart
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../api_services/src/log_service.dart';
 
 // Custom exception for connectivity errors
 class ConnectivityException implements Exception {
@@ -13,13 +11,15 @@ class ConnectivityException implements Exception {
   String toString() => 'ConnectivityException: $message';
 }
 
+enum ConnectivityStatus { online, offline }
+
 class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
   ConnectivityStatus _currentStatus = ConnectivityStatus.online;
 
   // Stream for broadcasting status changes
   final StreamController<ConnectivityStatus> _statusController =
-      StreamController<ConnectivityStatus>.broadcast();
+  StreamController<ConnectivityStatus>.broadcast();
 
   // Throttle mechanism
   DateTime _lastCheck = DateTime.now();
@@ -83,23 +83,16 @@ class ConnectivityService {
     }
   }
 
-  ConnectivityStatus _getStatusFromResult(ConnectivityResult result) {
-    switch (result) {
-      case ConnectivityResult.wifi:
-      case ConnectivityResult.mobile:
-        return ConnectivityStatus.online;
-      case ConnectivityResult.none:
-        return ConnectivityStatus.offline;
-      default:
-        return ConnectivityStatus.offline;
-    }
-  }
-
   Future<bool> isConnectionHas() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      return result.contains(ConnectivityResult.wifi) ||
-          result.contains(ConnectivityResult.mobile);
+      if (result is List<ConnectivityResult>) {
+        return result.contains(ConnectivityResult.wifi) ||
+            result.contains(ConnectivityResult.mobile);
+      } else if (result is ConnectivityResult) {
+        return result == ConnectivityResult.wifi || result == ConnectivityResult.mobile;
+      }
+      return false;
     } catch (e, stack) {
       dev.log('Error checking connectivity $e', stackTrace: stack);
       return false;
@@ -155,4 +148,3 @@ class ConnectivityService {
   }
 }
 
-enum ConnectivityStatus { online, offline }

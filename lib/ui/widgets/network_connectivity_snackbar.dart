@@ -2,11 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:ztpack/pack.dart';
-import 'package:ztpack/services/snack_bar_service/notify_service.dart';
-
-import '../../core/network/connectivity_service.dart';
-
+import '../../services/service.dart';
 
 class NetworkConnectivitySnackBar extends StatefulWidget {
   final Widget child;
@@ -31,10 +27,12 @@ class NetworkConnectivitySnackBar extends StatefulWidget {
   });
 
   @override
-  State<NetworkConnectivitySnackBar> createState() => _NetworkConnectivitySnackBarState();
+  State<NetworkConnectivitySnackBar> createState() =>
+      _NetworkConnectivitySnackBarState();
 }
 
-class _NetworkConnectivitySnackBarState extends State<NetworkConnectivitySnackBar> {
+class _NetworkConnectivitySnackBarState
+    extends State<NetworkConnectivitySnackBar> {
   late ConnectivityService _connectivityService;
   bool _isOnline = true;
   bool _snackbarShown = false;
